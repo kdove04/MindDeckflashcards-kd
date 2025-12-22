@@ -26,6 +26,6 @@
 flashcards-website/
 ├── index.html
 ├── style.css
-├── script.js
+├── app.js
 ├── README.md
 └── .gitignore
