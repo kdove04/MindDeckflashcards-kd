@@ -60,3 +60,10 @@ footer{margin-top:2rem;padding-top:1rem;border-top:1px solid rgba(15,23,42,0.04)
 
 /* Utility helpers */
 .muted{color:var(--muted)}
+
+/* Form + small button variants */
+form#create-deck-form{display:flex;flex-direction:column;gap:.5rem}
+form#create-deck-form label{font-weight:600;font-size:.92rem}
+form#create-deck-form input, form#create-deck-form textarea{border:1px solid rgba(15,23,42,0.06);padding:.5rem;border-radius:8px;font-size:1rem}
+.btn.ghost{background:transparent;color:var(--text);box-shadow:none;border:1px solid rgba(15,23,42,0.04)}
+

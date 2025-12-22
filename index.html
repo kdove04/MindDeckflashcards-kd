@@ -22,7 +22,28 @@
       <section class="hero" aria-labelledby="hero-title">
         <h2 id="hero-title">Learn faster with flashcards</h2>
         <p>Basic, privacy-first web flashcards. Start by creating a deck.</p>
-        <p><a class="btn" href="#">Create a deck</a></p>
+        <p>
+          <button id="create-deck-btn" class="btn" type="button">Create a deck</button>
+        </p>
+      </section>
+      
+      <!-- Decks: list + create form -->
+      <section id="decks" aria-labelledby="decks-title" style="margin-top:1.25rem">
+        <h3 id="decks-title">Your decks</h3>
+        <div id="decks-list" class="grid" aria-live="polite"></div>
+
+        <form id="create-deck-form" class="card" style="display:none;margin-top:1rem" aria-hidden="true">
+          <label for="deck-name">Deck name</label>
+          <input id="deck-name" name="name" type="text" required placeholder="e.g. Spanish verbs">
+
+          <label for="deck-desc">Description (optional)</label>
+          <textarea id="deck-desc" name="description" rows="3" placeholder="Short description"></textarea>
+
+          <div style="display:flex;gap:.5rem;margin-top:.75rem">
+            <button type="submit" class="btn">Create</button>
+            <button id="create-deck-cancel" type="button" class="btn ghost">Cancel</button>
+          </div>
+        </form>
       </section>
 
       <section aria-labelledby="features" style="margin-top:1.25rem">
@@ -54,6 +75,7 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     // TODO: add app initialization, storage, and routing here
   </script>
+  <script src="app.js"></script>
 </body>
 </html>
 
