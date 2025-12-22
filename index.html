@@ -1,1 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WWW Flashcards — Home</title>
+  <meta name="description" content="A simple flashcards website skeleton." />
+  <style>
+    :root{--bg:#f7f7f9;--card:#fff;--accent:#0b69ff;--text:#0f172a}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; color:var(--text);background:var(--bg)}
+    .container{max-width:980px;margin:3rem auto;padding:1rem}
+    header{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+    nav a{color:var(--text);text-decoration:none;margin-left:.75rem}
+    .hero{background:linear-gradient(90deg,#fff,#f3f4f6);padding:2rem;border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem}
+    .card{background:var(--card);padding:1rem;border-radius:8px;box-shadow:0 4px 12px rgba(2,6,23,0.04)}
+    footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #e6e9ef;color:#6b7280;font-size:.9rem}
+    .btn{display:inline-block;padding:.5rem .9rem;background:var(--accent);color:#fff;border-radius:6px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>WWW Flashcards</h1>
+      <nav aria-label="Main navigation">
+        <a href="#" aria-current="page">Home</a>
+        <a href="#">Decks</a>
+        <a href="#">About</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <h2 id="hero-title">Learn faster with flashcards</h2>
+        <p>Lightweight, privacy-first web flashcards. Start by creating a deck or importing one.</p>
+        <p><a class="btn" href="#">Create a deck</a></p>
+      </section>
+
+      <section aria-labelledby="features" style="margin-top:1.25rem">
+        <h3 id="features">Quick start</h3>
+        <div class="grid">
+          <article class="card">
+            <h4>Create Decks</h4>
+            <p>Make decks with terms, definitions, and optional hints.</p>
+          </article>
+          <article class="card">
+            <h4>Study</h4>
+            <p>Review cards with spaced repetition or simple review modes.</p>
+          </article>
+          <article class="card">
+            <h4>Export / Import</h4>
+            <p>Save or load decks as JSON or CSV for portability.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>© <span id="year"></span> WWW Flashcards — Minimal prototype</p>
+    </footer>
+  </div>
+
+  <script>
+    // Small helpers: set year, keyboard shortcuts, placeholders for app logic
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // TODO: add app initialization, storage, and routing here
+  </script>
+</body>
+</html>
 
