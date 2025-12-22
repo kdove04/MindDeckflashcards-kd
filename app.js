@@ -32,13 +32,74 @@
     decks.forEach(d=>{
       const el = document.createElement('article');
       el.className = 'card';
+      el.tabIndex = 0;
+      el.dataset.id = d.id;
       el.innerHTML = `
         <h4>${escapeHtml(d.name)}</h4>
         <p>${escapeHtml(d.description || '')}</p>
         <p><small class="muted">${(d.cards||[]).length} cards</small></p>
       `;
+      // open deck detail when clicked or Enter pressed
+      el.addEventListener('click', ()=> showDeckDetail(true, d.id));
+      el.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') showDeckDetail(true, d.id); });
       list.appendChild(el);
     });
+  }
+
+  /* --- Deck detail / card management --- */
+  function getDeckById(id){
+    const decks = loadDecks();
+    return decks.find(d=>d.id === id);
+  }
+
+  function showDeckDetail(show, deckId){
+    const aside = document.getElementById('deck-detail');
+    if(!aside) return;
+    aside.style.display = show ? 'block' : 'none';
+    aside.setAttribute('aria-hidden', show ? 'false' : 'true');
+    if(show){ renderDeckDetails(deckId); }
+  }
+
+  function renderDeckDetails(deckId){
+    const deck = getDeckById(deckId);
+    const title = document.getElementById('deck-detail-title');
+    const list = document.getElementById('deck-cards-list');
+    const addForm = document.getElementById('add-card-form');
+    if(!deck || !title || !list) return;
+    title.textContent = deck.name;
+    list.innerHTML = '';
+
+    if(!deck.cards || !deck.cards.length){
+      const p = document.createElement('p');
+      p.className = 'muted';
+      p.textContent = 'No cards in this deck yet.';
+      list.appendChild(p);
+    } else {
+      deck.cards.forEach(c=>{
+        const el = document.createElement('article');
+        el.className = 'deck-card';
+        el.innerHTML = `
+          <p><strong>${escapeHtml(c.front)}</strong></p>
+          <p>${escapeHtml(c.back)}</p>
+          <div class="card-controls"><button class="delete" data-card-id="${c.id}">Delete</button></div>
+        `;
+        // delete handler
+        el.querySelector('.delete').addEventListener('click', (ev)=>{
+          ev.stopPropagation();
+          const decks = loadDecks();
+          const idx = decks.findIndex(dd=>dd.id === deck.id);
+          if(idx === -1) return;
+          decks[idx].cards = decks[idx].cards.filter(x=>x.id !== c.id);
+          saveDecks(decks);
+          renderDeckDetails(deck.id);
+          renderDecks();
+        });
+        list.appendChild(el);
+      });
+    }
+
+    // attach deck id to add form for reference
+    if(addForm){ addForm.dataset.deckId = deck.id; }
   }
 
   function showForm(show){
@@ -73,6 +134,35 @@
           saveDecks(decks);
           form.reset();
           showForm(false);
+          renderDecks();
+        });
+      }
+
+      // Deck detail interactions
+      const deckClose = document.getElementById('deck-detail-close');
+      const addCardForm = document.getElementById('add-card-form');
+      const addCardCancel = document.getElementById('add-card-cancel');
+
+      if(deckClose){ deckClose.addEventListener('click', ()=> showDeckDetail(false)); }
+      if(addCardCancel){ addCardCancel.addEventListener('click', ()=> { addCardForm.reset(); }); }
+
+      if(addCardForm){
+        addCardForm.addEventListener('submit', (ev)=>{
+          ev.preventDefault();
+          const deckId = Number(addCardForm.dataset.deckId);
+          const front = addCardForm.elements['front'].value.trim();
+          const back = addCardForm.elements['back'].value.trim();
+          if(!front || !back){ alert('Please provide both front and back'); return; }
+
+          const decks = loadDecks();
+          const idx = decks.findIndex(d=>d.id === deckId);
+          if(idx === -1){ alert('Deck not found'); return; }
+          const card = { id: Date.now(), front, back };
+          decks[idx].cards = decks[idx].cards || [];
+          decks[idx].cards.push(card);
+          saveDecks(decks);
+          addCardForm.reset();
+          renderDeckDetails(deckId);
           renderDecks();
         });
       }

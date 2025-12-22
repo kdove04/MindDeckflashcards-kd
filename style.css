@@ -67,3 +67,12 @@ form#create-deck-form label{font-weight:600;font-size:.92rem}
 form#create-deck-form input, form#create-deck-form textarea{border:1px solid rgba(15,23,42,0.06);padding:.5rem;border-radius:8px;font-size:1rem}
 .btn.ghost{background:transparent;color:var(--text);box-shadow:none;border:1px solid rgba(15,23,42,0.04)}
 
+/* Deck-detail / card list styles */
+#deck-detail{border-left:4px solid rgba(255,61,143,0.06);padding:1rem}
+#deck-cards-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-top:.5rem}
+.card .card-controls{display:flex;gap:.5rem;align-items:center;justify-content:flex-end}
+.card .small-muted{font-size:.85rem;color:var(--muted)}
+.deck-card{padding:.75rem;border-radius:8px;background:linear-gradient(180deg,#fff,#fff);border:1px solid rgba(15,23,42,0.03)}
+.deck-card p{margin:.25rem 0}
+.deck-card .delete{background:transparent;border:1px solid rgba(255,61,143,0.08);color:var(--accent);padding:.25rem .5rem;border-radius:6px}
+
