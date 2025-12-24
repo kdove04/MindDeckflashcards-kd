@@ -152,23 +152,8 @@
     document.addEventListener('DOMContentLoaded', ()=>{
       renderDecks();
 
-      // nav: show decks when clicking the 'Decks' link
-      const navDecks = document.getElementById('nav-decks');
-      if(navDecks){
-        navDecks.addEventListener('click', (e)=>{
-          // Only intercept the click when the decks section exists on this page
-          const decksSection = document.getElementById('decks');
-          if(decksSection){
-            // prevent default anchor navigation and do a smooth in-page scroll
-            e.preventDefault();
-            // close any open deck detail
-            showDeckDetail(false);
-            renderDecks();
-            decksSection.scrollIntoView({behavior:'smooth', block:'start'});
-          }
-          // otherwise allow the link to navigate to decks.html (default)
-        });
-      }
+      // Navigation behavior: don't intercept clicks on the nav 'Decks' link
+      // so that clicking from the index page always follows the link to decks.html.
 
       const btn = document.getElementById('create-deck-btn');
       const form = document.getElementById('create-deck-form');
