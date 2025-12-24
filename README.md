@@ -25,6 +25,7 @@
 ```text
 flashcards-website/
 ├── index.html
+├── decks.html
 ├── style.css
 ├── app.js
 ├── README.md
