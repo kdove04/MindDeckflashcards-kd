@@ -38,10 +38,48 @@
         <h4>${escapeHtml(d.name)}</h4>
         <p>${escapeHtml(d.description || '')}</p>
         <p><small class="muted">${(d.cards||[]).length} cards</small></p>
+        <div class="card-controls">
+          <button type="button" class="btn small" data-action="add-card">Add card</button>
+          <button type="button" class="btn ghost small" data-action="delete-deck">Delete deck</button>
+        </div>
       `;
-      // open deck detail when clicked or Enter pressed
-      el.addEventListener('click', ()=> showDeckDetail(true, d.id));
+      // open deck detail when clicked or Enter pressed (but not when clicking controls)
+      el.addEventListener('click', (ev)=>{
+        const action = ev.target.closest('[data-action]');
+        if(action) return; // controls will handle it
+        showDeckDetail(true, d.id);
+      });
       el.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') showDeckDetail(true, d.id); });
+
+      // delegate control clicks
+      el.querySelectorAll('[data-action]').forEach(btn=>{
+        const action = btn.dataset.action;
+        if(action === 'add-card'){
+          btn.addEventListener('click', (ev)=>{
+            ev.stopPropagation();
+            showDeckDetail(true, d.id);
+            // focus the front input after a short delay to ensure detail rendered
+            setTimeout(()=>{
+              const front = document.getElementById('card-front');
+              if(front) front.focus();
+            }, 150);
+          });
+        }
+        if(action === 'delete-deck'){
+          btn.addEventListener('click', (ev)=>{
+            ev.stopPropagation();
+            if(!confirm(`Delete deck "${d.name}"? This will remove all its cards.`)) return;
+            const decksAll = loadDecks();
+            const remaining = decksAll.filter(dd=>dd.id !== d.id);
+            saveDecks(remaining);
+            // if we were viewing this deck, close detail
+            const detailTitle = document.getElementById('deck-detail-title');
+            if(detailTitle && detailTitle.textContent === d.name){ showDeckDetail(false); }
+            renderDecks();
+          });
+        }
+      });
+
       list.appendChild(el);
     });
   }
