@@ -1,0 +1,13 @@
+{
+  "name": "minddeck-server",
+  "version": "0.1.0",
+  "description": "Simple server scaffold for MindDeck Flashcards (optional sync API)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

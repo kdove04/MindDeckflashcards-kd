@@ -45,6 +45,81 @@
     a.remove();
   }
 
+  /* Modal helper - returns a Promise that resolves to values or null on cancel */
+  function openModal(options){
+    // options: { title, fields: [{name,label,type,value}], submitText }
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+    const actions = document.getElementById('modal-actions');
+    const closeBtn = document.getElementById('modal-close');
+    if(!overlay || !body || !actions || !titleEl) return Promise.resolve(null);
+
+    titleEl.textContent = options.title || 'Edit';
+    body.innerHTML = '';
+    actions.innerHTML = '';
+
+    const inputs = {};
+    (options.fields||[]).forEach(f=>{
+      const label = document.createElement('label');
+      label.textContent = f.label || f.name;
+      const control = (f.type === 'textarea') ? document.createElement('textarea') : document.createElement('input');
+      control.name = f.name; control.id = 'modal-'+f.name; control.value = f.value || '';
+      if(f.type && f.type !== 'textarea') control.type = f.type;
+      body.appendChild(label);
+      body.appendChild(control);
+      inputs[f.name] = control;
+    });
+
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn';
+    submitBtn.textContent = options.submitText || 'Save';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn ghost';
+    cancelBtn.textContent = 'Cancel';
+    actions.appendChild(cancelBtn);
+    actions.appendChild(submitBtn);
+
+    overlay.style.display = '';
+    overlay.setAttribute('aria-hidden','false');
+
+    // focus first input
+    const first = Object.values(inputs)[0];
+    if(first) first.focus();
+
+    return new Promise(resolve=>{
+      function cleanup(){
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden','true');
+        submitBtn.removeEventListener('click', onSubmit);
+        cancelBtn.removeEventListener('click', onCancel);
+        closeBtn && closeBtn.removeEventListener('click', onCancel);
+        overlay.removeEventListener('click', onOverlayClick);
+        document.removeEventListener('keydown', onKey);
+      }
+      function onSubmit(e){
+        e.preventDefault();
+        const result = {};
+        Object.keys(inputs).forEach(k=> result[k] = inputs[k].value);
+        cleanup();
+        resolve(result);
+      }
+      function onCancel(e){
+        e && e.preventDefault();
+        cleanup();
+        resolve(null);
+      }
+      function onOverlayClick(e){ if(e.target === overlay) onCancel(); }
+      function onKey(e){ if(e.key === 'Escape') onCancel(); }
+
+      submitBtn.addEventListener('click', onSubmit);
+      cancelBtn.addEventListener('click', onCancel);
+      closeBtn && closeBtn.addEventListener('click', onCancel);
+      overlay.addEventListener('click', onOverlayClick);
+      document.addEventListener('keydown', onKey);
+    });
+  }
+
 
   function renderDecks(){
     const list = document.getElementById('decks-list');
@@ -96,14 +171,20 @@
           });
         }
         if(action === 'edit-deck'){
-          btn.addEventListener('click', (ev)=>{
+          btn.addEventListener('click', async (ev)=>{
             ev.stopPropagation();
-            const newName = prompt('Rename deck', d.name);
-            if(newName === null) return; // cancelled
-            const newDesc = prompt('Update description (optional)', d.description || '');
+            const res = await openModal({
+              title: 'Edit deck',
+              fields: [
+                { name: 'name', label: 'Deck name', type: 'text', value: d.name },
+                { name: 'description', label: 'Description (optional)', type: 'textarea', value: d.description || '' }
+              ],
+              submitText: 'Save'
+            });
+            if(!res) return;
             const decksAll = loadDecks();
             const idx = decksAll.findIndex(dd=>dd.id === d.id);
-            if(idx !== -1){ decksAll[idx].name = newName.trim() || decksAll[idx].name; decksAll[idx].description = (newDesc||'').trim(); saveDecks(decksAll); renderDecks(); }
+            if(idx !== -1){ decksAll[idx].name = (res.name||'').trim() || decksAll[idx].name; decksAll[idx].description = (res.description||'').trim(); saveDecks(decksAll); renderDecks(); }
           });
         }
         if(action === 'delete-deck'){
@@ -192,18 +273,24 @@
         // edit handler
         const editBtn = el.querySelector('[data-action="edit-card"]');
         if(editBtn){
-          editBtn.addEventListener('click', (ev)=>{
+          editBtn.addEventListener('click', async (ev)=>{
             ev.stopPropagation();
-            const newFront = prompt('Edit front', c.front);
-            if(newFront === null) return;
-            const newBack = prompt('Edit back', c.back);
+            const res = await openModal({
+              title: 'Edit card',
+              fields: [
+                { name: 'front', label: 'Front', type: 'text', value: c.front },
+                { name: 'back', label: 'Back', type: 'text', value: c.back }
+              ],
+              submitText: 'Save'
+            });
+            if(!res) return;
             const decks = loadDecks();
             const di = decks.findIndex(dd=>dd.id === deck.id);
             if(di === -1) return;
             const ci = decks[di].cards.findIndex(x=>x.id === c.id);
             if(ci === -1) return;
-            decks[di].cards[ci].front = (newFront||'').trim();
-            decks[di].cards[ci].back = (newBack||'').trim();
+            decks[di].cards[ci].front = (res.front||'').trim();
+            decks[di].cards[ci].back = (res.back||'').trim();
             saveDecks(decks);
             renderDeckDetails(deck.id);
             renderDecks();

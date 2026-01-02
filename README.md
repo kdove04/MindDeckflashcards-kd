@@ -52,3 +52,26 @@ Notes & next steps
 - I can add spaced repetition algorithms and progress tracking if you want study features.
 
 If you'd like, I can continue by polishing the UI, adding tests, or implementing server sync.
+ 
+Server sync (optional)
+----------------------
+
+I added a minimal Node/Express scaffold in `server.js` that exposes:
+
+- GET /api/decks — returns decks from `data.json` (file in repo root)
+- POST /api/decks — replace decks (accepts array)
+- GET /api/health — simple health check
+
+To run the server locally:
+
+```bash
+# install dependencies once
+npm install
+# start server
+npm start
+# server runs on http://localhost:3000 by default
+```
+
+Client-side sync
+-----------------
+The app is still client-first (localStorage). I added a simple server scaffold and helper stubs in `app.js` so we can add push/pull sync later.

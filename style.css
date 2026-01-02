@@ -91,4 +91,15 @@ form#create-deck-form input, form#create-deck-form textarea{border:1px solid rgb
 .study-card .front,.study-card .back{font-size:1.125rem}
 .study-controls{display:flex;gap:.5rem;align-items:center}
 
+/* Modal dialog */
+.modal-overlay{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:flex;align-items:center;justify-content:center;z-index:1300}
+.modal{background:#fff;padding:1rem;border-radius:12px;max-width:680px;width:95%;box-shadow:0 20px 60px rgba(2,6,23,0.2)}
+.modal header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.modal h3{margin:0;font-size:1.05rem}
+.modal .modal-body{display:flex;flex-direction:column;gap:.5rem}
+.modal label{font-weight:600;font-size:.92rem}
+.modal input,.modal textarea{width:100%;padding:.5rem;border:1px solid rgba(15,23,42,0.06);border-radius:8px}
+.modal .modal-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem}
+
+
 
