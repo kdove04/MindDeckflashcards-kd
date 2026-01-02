@@ -16,17 +16,39 @@
 
 - HTML
 - CSS
-- JavaScript  
-  
----
+# MindDeck Flashcards
 
-## 📂 Project Structure
+This is a small client-side flashcards web app (minimal demo / prototype).
 
-```text
-flashcards-website/
-├── index.html
-├── decks.html
-├── style.css
-├── app.js
-├── README.md
-└── .gitignore
+Overview
+--------
+
+- Create, edit and delete decks
+- Add, edit and delete cards inside decks
+- Undo delete for decks and cards via a snackbar
+- Export and import decks as JSON
+- Simple study mode: flip / next / prev / exit
+
+How to run
+----------
+
+Serve the files from the project root (recommended):
+
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000 in your browser
+```
+
+Data persistence
+----------------
+
+All data is stored in the browser's localStorage under the key `wwwf_decks_v1`.
+
+Notes & next steps
+------------------
+
+- The project uses small prompt-based editors for renaming decks and editing cards. If you prefer, I can replace those with in-page modals.
+- For production you'd probably add a server API and user accounts so decks sync between devices.
+- I can add spaced repetition algorithms and progress tracking if you want study features.
+
+If you'd like, I can continue by polishing the UI, adding tests, or implementing server sync.

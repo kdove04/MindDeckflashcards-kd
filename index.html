@@ -25,13 +25,21 @@
         <p>
           <button id="create-deck-btn" class="btn" type="button">Create a deck</button>
         </p>
+        <p style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
+          <button id="export-decks" class="btn small" type="button">Export decks</button>
+          <label class="btn small ghost" style="cursor:pointer">
+            Import
+            <input id="import-file" type="file" accept="application/json" style="display:none">
+          </label>
+        </p>
       </section>
 
       <!-- Deck detail (hidden until a deck is selected) -->
       <aside id="deck-detail" class="card" style="display:none;margin-top:1.25rem" aria-hidden="true">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
           <h3 id="deck-detail-title">Deck</h3>
-          <div>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <button id="start-study" class="btn small" type="button">Study</button>
             <button id="deck-detail-close" class="btn ghost" type="button">Close</button>
           </div>
         </div>
@@ -39,6 +47,19 @@
         <div id="deck-cards" style="margin-top:1rem">
           <h4>Cards</h4>
           <div id="deck-cards-list" class="grid" aria-live="polite"></div>
+        </div>
+
+        <div id="study-view" class="study-view" aria-hidden="true">
+          <div class="study-card">
+            <div class="front" id="study-front"></div>
+            <div class="back" id="study-back" style="display:none"></div>
+          </div>
+          <div class="study-controls">
+            <button id="study-prev" class="btn small ghost">Prev</button>
+            <button id="study-flip" class="btn small">Flip</button>
+            <button id="study-next" class="btn small">Next</button>
+            <button id="study-exit" class="btn ghost small">Exit</button>
+          </div>
         </div>
 
         <form id="add-card-form" style="margin-top:1rem;display:flex;flex-direction:column;gap:.5rem">
