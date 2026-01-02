@@ -152,8 +152,28 @@
     document.addEventListener('DOMContentLoaded', ()=>{
       renderDecks();
 
-      // Navigation behavior: don't intercept clicks on the nav 'Decks' link
-      // so that clicking from the index page always follows the link to decks.html.
+      // Navigation behavior for the 'Decks' nav link:
+      // - If this page contains a `#decks` section, a normal left-click will
+      //   smoothly scroll to it (in-page experience).
+      // - If the user uses a modifier key (Shift/Ctrl/Meta/Alt) or middle-click,
+      //   the browser's default navigation will be allowed (open decks.html/new tab).
+      const navDecks = document.getElementById('nav-decks');
+      if(navDecks){
+        navDecks.addEventListener('click', (e)=>{
+          const decksSection = document.getElementById('decks');
+          // If no in-page decks section, let the link navigate normally.
+          if(!decksSection) return;
+          // Allow navigation if user used any modifier key (common pattern to open in new tab/window)
+          if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+          // Only handle left button clicks; allow middle-clicks and others
+          if('button' in e && e.button !== 0) return;
+          // Intercept and perform smooth in-page scroll
+          e.preventDefault();
+          showDeckDetail(false);
+          renderDecks();
+          decksSection.scrollIntoView({behavior:'smooth', block:'start'});
+        });
+      }
 
       const btn = document.getElementById('create-deck-btn');
       const form = document.getElementById('create-deck-form');
