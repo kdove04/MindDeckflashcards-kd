@@ -6,6 +6,7 @@
   <title>MindDeck Flashcards — Decks</title>
   <meta name="description" content="Your flashcard decks" />
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
@@ -27,7 +28,7 @@
         </p>
         <p style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
           <button id="export-decks" class="btn small" type="button">Export decks</button>
-          <label class="btn small ghost" style="cursor:pointer">
+          <label id="import-label" class="btn small ghost" style="cursor:pointer">
             Import
             <input id="import-file" type="file" accept="application/json" style="display:none">
           </label>
