@@ -24,7 +24,7 @@
         <h2 id="hero-title">Your decks</h2>
         <p>Manage decks and add cards here.</p>
         <p>
-          <button id="create-deck-btn" class="btn" type="button">Create a deck</button>
+          <button id="create-deck-btn" class="btn" type="button" data-action="add-deck">Create a deck</button>
         </p>
         <p style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
           <button id="export-decks" class="btn small" type="button">Export decks</button>
@@ -48,7 +48,7 @@
           <textarea id="deck-desc" name="description" rows="3" placeholder="Short description"></textarea>
 
           <div style="display:flex;gap:.5rem;margin-top:.75rem">
-            <button type="submit" class="btn">Create</button>
+            <button type="submit" class="btn" data-action="create-deck">Create</button>
             <button id="create-deck-cancel" type="button" class="btn ghost">Cancel</button>
           </div>
         </form>
@@ -90,7 +90,7 @@
           <input id="card-back" name="back" type="text" placeholder="Definition or answer" required>
 
           <div style="display:flex;gap:.5rem;margin-top:.5rem">
-            <button type="submit" class="btn">Add card</button>
+            <button type="submit" class="btn" data-action="add-card">Add card</button>
             <button id="add-card-cancel" type="button" class="btn ghost">Cancel</button>
           </div>
         </form>
