@@ -105,16 +105,28 @@
         <h3 id="decks-title">Your decks</h3>
         <div id="decks-list" class="grid" aria-live="polite"></div>
 
-        <form id="create-deck-form" class="card" style="display:none;margin-top:1rem" aria-hidden="true">
-          <label for="deck-name">Deck name</label>
-          <input id="deck-name" name="name" type="text" required placeholder="e.g. Spanish verbs">
-
-          <label for="deck-desc">Description (optional)</label>
-          <textarea id="deck-desc" name="description" rows="3" placeholder="Short description"></textarea>
-
-          <div style="display:flex;gap:.5rem;margin-top:.75rem">
-            <button type="submit" class="btn" data-action="create-deck">Create</button>
-            <button id="create-deck-cancel" type="button" class="btn ghost">Cancel</button>
+        <form id="create-deck-form" class="create-deck-flashcard" style="display:none;margin-top:2rem" aria-hidden="true">
+          <div class="create-deck-container">
+            <div class="create-deck-card">
+              <div class="create-deck-header">
+                <h3>Create New Deck</h3>
+                <p class="create-deck-subtitle">Build your flashcard collection</p>
+              </div>
+              <div class="create-deck-body">
+                <div class="form-field">
+                  <label for="deck-name">Deck name</label>
+                  <input id="deck-name" name="name" type="text" required placeholder="e.g. Spanish verbs">
+                </div>
+                <div class="form-field">
+                  <label for="deck-desc">Description <span class="optional">(optional)</span></label>
+                  <textarea id="deck-desc" name="description" rows="3" placeholder="Short description of what you'll learn..."></textarea>
+                </div>
+              </div>
+              <div class="create-deck-actions">
+                <button type="submit" class="btn" data-action="create-deck">Create Deck</button>
+                <button id="create-deck-cancel" type="button" class="btn ghost">Cancel</button>
+              </div>
+            </div>
           </div>
         </form>
       </section>

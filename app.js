@@ -307,9 +307,15 @@
   function showForm(show){
     const form = document.getElementById('create-deck-form');
     if(!form) return;
-    form.style.display = show ? 'flex' : 'none';
+    form.style.display = show ? 'block' : 'none';
     form.setAttribute('aria-hidden', show ? 'false' : 'true');
-    if(show){ document.getElementById('deck-name').focus(); }
+    if(show){ 
+      // Small delay to ensure form is visible before focusing
+      setTimeout(() => {
+        const nameInput = document.getElementById('deck-name');
+        if(nameInput) nameInput.focus();
+      }, 100);
+    }
   }
 
   /* Export / Import */
