@@ -416,50 +416,41 @@
                      firstLine[0].toLowerCase() === 'question';
     
     const startIdx = hasHeader ? 1 : 0;
-    const decksMap = new Map(); // Group by deck name
+    const cards = [];
     
     for(let i = startIdx; i < parsedLines.length; i++){
       const line = parsedLines[i];
       if(line.length < 2) continue; // Skip incomplete lines
       
-      let deckName, deckDesc, front, back;
+      let front, back;
       
       if(line.length >= 4){
-        // Format: deck_name,deck_description,front,back
-        [deckName, deckDesc, front, back] = line;
+        // Format: deck_name,deck_description,front,back - ignore deck_name and desc
+        [, , front, back] = line;
       } else if(line.length === 2){
-        // Format: front,back (single deck)
+        // Format: front,back
         [front, back] = line;
-        deckName = 'Imported Deck';
-        deckDesc = '';
       } else {
         continue; // Skip invalid lines
       }
       
-      deckName = (deckName || 'Imported Deck').trim();
-      deckDesc = (deckDesc || '').trim();
       front = (front || '').trim();
       back = (back || '').trim();
       
       if(!front && !back) continue; // Skip empty cards
       
-      // Group cards by deck name
-      if(!decksMap.has(deckName)){
-        decksMap.set(deckName, {
-          name: deckName,
-          description: deckDesc,
-          cards: []
-        });
-      }
-      
-      decksMap.get(deckName).cards.push({
+      cards.push({
         front: front || 'Untitled',
         back: back || 'Untitled'
       });
     }
     
-    // Convert map to array
-    return Array.from(decksMap.values());
+    // Return one deck with all cards
+    return [{
+      name: 'Imported Deck',
+      description: '',
+      cards: cards
+    }];
   }
 
   function importDeckFile(file){
@@ -498,15 +489,42 @@
             throw new Error('File contains invalid data');
           }
 
-          // Handle both array of decks and single deck object
+          let cards = [];
+          
           if(Array.isArray(parsed)){
-            decksToImport = parsed;
-          } else if(typeof parsed === 'object' && parsed !== null){
-            // Single deck object - wrap it in an array
-            decksToImport = [parsed];
+            if(parsed.length > 0){
+              if(parsed[0].cards && Array.isArray(parsed[0].cards)){
+                // Array of decks - merge all cards
+                cards = parsed.flatMap(d => d.cards || []);
+              } else if(parsed[0].front !== undefined || parsed[0].back !== undefined){
+                // Array of cards
+                cards = parsed.map(c => ({
+                  front: c.front || '',
+                  back: c.back || ''
+                }));
+              } else {
+                throw new Error('Invalid JSON format: expected array of decks or cards');
+              }
+            }
+          } else if(typeof parsed === 'object'){
+            if(parsed.cards && Array.isArray(parsed.cards)){
+              // Single deck
+              cards = parsed.cards;
+            } else if(parsed.front !== undefined || parsed.back !== undefined){
+              // Single card
+              cards = [parsed];
+            } else {
+              throw new Error('Invalid JSON format: expected deck or card object');
+            }
           } else {
-            throw new Error('Invalid format: expected an array of decks or a single deck object');
+            throw new Error('Invalid format: expected an array or object');
           }
+          
+          decksToImport = [{
+            name: 'Imported Deck',
+            description: '',
+            cards: cards
+          }];
         } else if(isCSV){
           // Parse CSV
           decksToImport = parseCSV(reader.result);
