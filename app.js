@@ -433,17 +433,43 @@
       const studyNext = document.getElementById('study-next');
       const studyPrev = document.getElementById('study-prev');
       const studyExit = document.getElementById('study-exit');
+      const studyProgressText = document.getElementById('study-progress-text');
+      const studyProgressInner = document.getElementById('study-progress-inner');
+      const studyCardEl = document.querySelector('.study-card');
 
-      let _study = { deckId: null, idx:0, showingBack:false };
+      let _study = { deckId: null, idx:0, showingBack:false, total:0 };
+
+      function updateStudyProgress(deck){
+        if(!studyProgressText || !studyProgressInner || !deck || !deck.cards) return;
+        const total = deck.cards.length || 0;
+        _study.total = total;
+        if(!total){
+          studyProgressText.textContent = '';
+          studyProgressInner.style.width = '0%';
+          return;
+        }
+        const current = _study.idx + 1;
+        studyProgressText.textContent = `Card ${current} of ${total}`;
+        const pct = Math.max(0, Math.min(100, (current/total)*100));
+        studyProgressInner.style.width = pct + '%';
+      }
 
       function renderStudy(){
         const deck = getDeckById(_study.deckId);
-        if(!deck || !deck.cards || !deck.cards.length){ alert('No cards to study'); return; }
+        if(!deck || !deck.cards || !deck.cards.length){
+          alert('No cards to study');
+          return;
+        }
+        // clamp index in case cards were deleted
+        if(_study.idx >= deck.cards.length){ _study.idx = deck.cards.length - 1; }
+        if(_study.idx < 0){ _study.idx = 0; }
+
         const card = deck.cards[_study.idx];
         studyFront.textContent = card.front;
         studyBack.textContent = card.back;
         studyFront.style.display = _study.showingBack ? 'none' : '';
         studyBack.style.display = _study.showingBack ? '' : 'none';
+        updateStudyProgress(deck);
       }
 
       function showStudy(show, deckId){
@@ -454,7 +480,17 @@
         const addFormEl = document.getElementById('add-card-form');
         if(cardsList) cardsList.style.display = show ? 'none' : '';
         if(addFormEl) addFormEl.style.display = show ? 'none' : '';
-        if(show){ _study = { deckId: deckId, idx:0, showingBack:false }; renderStudy(); }
+        if(show){
+          const deck = getDeckById(deckId);
+          if(!deck || !deck.cards || !deck.cards.length){
+            alert('No cards to study');
+            showStudy(false);
+            return;
+          }
+          _study = { deckId: deckId, idx:0, showingBack:false, total:deck.cards.length };
+          renderStudy();
+          if(studyCardEl){ studyCardEl.focus(); }
+        }
       }
 
       if(startStudyBtn){ startStudyBtn.addEventListener('click', ()=>{
@@ -468,9 +504,45 @@
       }); }
 
       if(studyFlip){ studyFlip.addEventListener('click', ()=>{ _study.showingBack = !_study.showingBack; renderStudy(); }); }
-      if(studyNext){ studyNext.addEventListener('click', ()=>{ const deck = getDeckById(_study.deckId); if(!deck) return; _study.idx = (_study.idx+1) % deck.cards.length; _study.showingBack = false; renderStudy(); }); }
-      if(studyPrev){ studyPrev.addEventListener('click', ()=>{ const deck = getDeckById(_study.deckId); if(!deck) return; _study.idx = (_study.idx-1+deck.cards.length) % deck.cards.length; _study.showingBack = false; renderStudy(); }); }
+      if(studyNext){ studyNext.addEventListener('click', ()=>{ const deck = getDeckById(_study.deckId); if(!deck || !deck.cards || !deck.cards.length) return; _study.idx = (_study.idx+1) % deck.cards.length; _study.showingBack = false; renderStudy(); }); }
+      if(studyPrev){ studyPrev.addEventListener('click', ()=>{ const deck = getDeckById(_study.deckId); if(!deck || !deck.cards || !deck.cards.length) return; _study.idx = (_study.idx-1+deck.cards.length) % deck.cards.length; _study.showingBack = false; renderStudy(); }); }
       if(studyExit){ studyExit.addEventListener('click', ()=> showStudy(false)); }
+
+      // Keyboard shortcuts for study mode
+      function handleStudyKey(e){
+        if(!studyView || studyView.getAttribute('aria-hidden') === 'true') return;
+        // if a modal is open, ignore shortcuts
+        const overlay = document.getElementById('modal-overlay');
+        if(overlay && overlay.getAttribute('aria-hidden') === 'false') return;
+
+        if(e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter'){
+          e.preventDefault();
+          _study.showingBack = !_study.showingBack;
+          renderStudy();
+        }
+        if(e.key === 'ArrowRight'){
+          e.preventDefault();
+          const deck = getDeckById(_study.deckId);
+          if(!deck || !deck.cards || !deck.cards.length) return;
+          _study.idx = (_study.idx+1) % deck.cards.length;
+          _study.showingBack = false;
+          renderStudy();
+        }
+        if(e.key === 'ArrowLeft'){
+          e.preventDefault();
+          const deck = getDeckById(_study.deckId);
+          if(!deck || !deck.cards || !deck.cards.length) return;
+          _study.idx = (_study.idx-1+deck.cards.length) % deck.cards.length;
+          _study.showingBack = false;
+          renderStudy();
+        }
+        if(e.key === 'Escape'){
+          e.preventDefault();
+          showStudy(false);
+        }
+      }
+
+      document.addEventListener('keydown', handleStudyKey);
     });
   }
 

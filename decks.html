@@ -70,15 +70,21 @@
         </div>
 
         <div id="study-view" class="study-view" aria-hidden="true">
-          <div class="study-card">
+          <div class="study-card" tabindex="0">
             <div class="front" id="study-front"></div>
             <div class="back" id="study-back" style="display:none"></div>
           </div>
+          <div class="study-meta">
+            <div id="study-progress-text" class="muted small-text" aria-live="polite"></div>
+            <div class="study-progress-bar" aria-hidden="true">
+              <div id="study-progress-inner"></div>
+            </div>
+          </div>
           <div class="study-controls">
-            <button id="study-prev" class="btn small ghost">Prev</button>
-            <button id="study-flip" class="btn small">Flip</button>
-            <button id="study-next" class="btn small">Next</button>
-            <button id="study-exit" class="btn ghost small">Exit</button>
+            <button id="study-prev" class="btn small ghost" type="button">Prev</button>
+            <button id="study-flip" class="btn small" type="button">Flip</button>
+            <button id="study-next" class="btn small" type="button">Next</button>
+            <button id="study-exit" class="btn ghost small" type="button">Exit</button>
           </div>
         </div>
 

@@ -68,9 +68,14 @@ header.h-stack h1{font-size:1.5rem;margin:0;font-weight:700;letter-spacing:-0.02
 .snackbar button{background:transparent;color:var(--accent);border:none;font-weight:700;cursor:pointer}
 
 /* Study view */
-.study-card{width:100%;max-width:560px;padding:2rem;border-radius:12px;background:linear-gradient(180deg,#fff,#fff);box-shadow:0 12px 40px rgba(15,23,42,0.08);text-align:center}
+.study-view{display:flex;flex-direction:column;gap:.75rem;align-items:center;margin-top:.75rem}
+.study-card{width:100%;max-width:560px;padding:2rem;border-radius:12px;background:linear-gradient(180deg,#fff,#fff);box-shadow:0 12px 40px rgba(15,23,42,0.08);text-align:center;outline:none}
 .study-card .front,.study-card .back{font-size:1.125rem}
 .study-controls{display:flex;gap:.5rem;align-items:center}
+.study-meta{width:100%;max-width:560px;display:flex;flex-direction:column;gap:.3rem}
+.study-progress-bar{width:100%;height:6px;border-radius:999px;background:rgba(15,23,42,0.06);overflow:hidden}
+.study-progress-bar #study-progress-inner{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .18s ease-out}
+.small-text{font-size:.85rem}
 
 /* Modal dialog */
 .modal{background:#fff;padding:1rem;border-radius:12px;max-width:680px;width:95%;box-shadow:0 20px 60px rgba(2,6,23,0.2)}
