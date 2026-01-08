@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MindDeck Flashcards — About</title>
+  <meta name="description" content="About MindDeck Flashcards" />
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>MindDeck Flashcards</h1>
+      <nav aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="decks.html">Decks</a>
+        <a href="about.html" aria-current="page">About</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="about-title">
+        <h2 id="about-title">About MindDeck Flashcards</h2>
+        <p>A simple, privacy-first flashcard application built to help you learn faster and more effectively.</p>
+      </section>
+
+      <section aria-labelledby="project-overview" style="margin-top:1.25rem">
+        <h3 id="project-overview">Project Overview</h3>
+        <div class="card">
+          <p>MindDeck Flashcards was created to practice building web applications while studying at the same time. It's a minimal, client-side flashcard app that prioritizes simplicity and privacy—all your data stays in your browser.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="features" style="margin-top:1.25rem">
+        <h3 id="features">Features</h3>
+        <div class="grid">
+          <article class="card">
+            <h4>Create & Manage Decks</h4>
+            <p>Organize your flashcards into custom decks with names and descriptions. Create unlimited decks for different subjects or topics.</p>
+          </article>
+          <article class="card">
+            <h4>Study Mode</h4>
+            <p>Review cards with an intuitive study interface. Use keyboard shortcuts (Space to flip, arrows to navigate) for efficient studying. Track your progress with visual indicators.</p>
+          </article>
+          <article class="card">
+            <h4>Export & Import</h4>
+            <p>Save your decks as JSON files for backup or sharing. Import decks from other sources to expand your collection.</p>
+          </article>
+          <article class="card">
+            <h4>Privacy First</h4>
+            <p>All data is stored locally in your browser using localStorage. No accounts, no servers, no tracking—just your flashcards.</p>
+          </article>
+          <article class="card">
+            <h4>Undo Support</h4>
+            <p>Accidentally deleted a deck or card? Use the undo feature to restore it quickly.</p>
+          </article>
+          <article class="card">
+            <h4>Clean Interface</h4>
+            <p>Simple and modern design that focuses on your content without distractions.</p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="tech" style="margin-top:1.25rem">
+        <h3 id="tech">Technologies</h3>
+        <div class="card">
+          <p>This project is built with:</p>
+          <ul style="margin:.5rem 0;padding-left:1.5rem;color:var(--muted)">
+            <li><strong>HTML5</strong> — Semantic markup and accessibility</li>
+            <li><strong>CSS3</strong> — Modern styling with CSS variables and responsive design</li>
+            <li><strong>Vanilla JavaScript</strong> — No frameworks, just pure JavaScript</li>
+            <li><strong>Express.js</strong> — Optional server for future sync features</li>
+            <li><strong>localStorage API</strong> — Client-side data persistence</li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="usage" style="margin-top:1.25rem">
+        <h3 id="usage">How to Use</h3>
+        <div class="card">
+          <ol style="margin:.5rem 0;padding-left:1.5rem;color:var(--muted)">
+            <li><strong>Create a deck:</strong> Click "Create a deck" and give it a name and optional description.</li>
+            <li><strong>Add cards:</strong> Open a deck and add flashcards with questions on the front and answers on the back.</li>
+            <li><strong>Study:</strong> Click "Study" to enter study mode. Use Space/Enter to flip cards, arrow keys to navigate, and Escape to exit.</li>
+            <li><strong>Export:</strong> Save your decks as JSON files for backup or sharing.</li>
+            <li><strong>Import:</strong> Load previously exported decks to restore or merge collections.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section aria-labelledby="running" style="margin-top:1.25rem">
+        <h3 id="running">Running Locally</h3>
+        <div class="card">
+          <p>To run this project locally, serve the files from the project root:</p>
+          <pre style="background:rgba(15,23,42,0.03);padding:.75rem;border-radius:8px;overflow-x:auto;margin:.5rem 0;font-size:.9rem;color:var(--text)"><code>python3 -m http.server 8000
+# Then open http://localhost:8000 in your browser</code></pre>
+          <p style="margin-top:.75rem">For the optional server sync features:</p>
+          <pre style="background:rgba(15,23,42,0.03);padding:.75rem;border-radius:8px;overflow-x:auto;margin:.5rem 0;font-size:.9rem;color:var(--text)"><code>npm install
+npm start
+# Server runs on http://localhost:3000</code></pre>
+        </div>
+      </section>
+
+      <section aria-labelledby="data" style="margin-top:1.25rem">
+        <h3 id="data">Data Storage</h3>
+        <div class="card">
+          <p>All flashcard data is stored in your browser's localStorage under the key <code style="background:rgba(15,23,42,0.03);padding:.2rem .4rem;border-radius:4px;font-size:.9em">wwwf_decks_v1</code>. This means:</p>
+          <ul style="margin:.5rem 0;padding-left:1.5rem;color:var(--muted)">
+            <li>Your data never leaves your device</li>
+            <li>No account or login required</li>
+            <li>Data persists between sessions</li>
+            <li>You can export/import to back up or transfer data</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>© <span id="year"></span> Karys Dove (originally WWWW Flashcards) — Minimal prototype</p>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
