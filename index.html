@@ -21,19 +21,35 @@
     </header>
 
     <main>
-      <section class="hero" aria-labelledby="hero-title">
-        <h2 id="hero-title">Learn faster with flashcards</h2>
-        <p>Basic, privacy-first web flashcards. Start by creating a deck.</p>
-        <p>
-          <button id="create-deck-btn" class="btn" type="button" data-action="add-deck">Create a deck</button>
-        </p>
-        <p style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
-          <button id="export-decks" class="btn small" type="button">Export decks</button>
-          <label id="import-label" class="btn small ghost" style="cursor:pointer">
-            Import
-            <input id="import-file" type="file" accept="application/json" style="display:none">
-          </label>
-        </p>
+      <section class="hero-flashcard" aria-labelledby="hero-title">
+        <div class="flashcard-container">
+          <div class="flashcard-inner" id="hero-flashcard">
+            <div class="flashcard-front">
+              <div class="flashcard-content">
+                <h2 id="hero-title">Learn faster with flashcards</h2>
+                <p class="flashcard-subtitle">Click to flip</p>
+              </div>
+            </div>
+            <div class="flashcard-back">
+              <div class="flashcard-content">
+                <h2>Privacy-first learning</h2>
+                <p>All your data stays in your browser. No accounts, no tracking—just your flashcards.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <p>
+            <button id="create-deck-btn" class="btn" type="button" data-action="add-deck">Create a deck</button>
+          </p>
+          <p style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
+            <button id="export-decks" class="btn small" type="button">Export decks</button>
+            <label id="import-label" class="btn small ghost" style="cursor:pointer">
+              Import
+              <input id="import-file" type="file" accept="application/json" style="display:none">
+            </label>
+          </p>
+        </div>
       </section>
 
       <!-- Deck detail (hidden until a deck is selected) -->

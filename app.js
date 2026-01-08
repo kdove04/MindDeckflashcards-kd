@@ -340,6 +340,25 @@
 
   function init(){
     document.addEventListener('DOMContentLoaded', ()=>{
+      // Hero flashcard flip interaction (only on index.html)
+      const heroFlashcard = document.getElementById('hero-flashcard');
+      if(heroFlashcard){
+        heroFlashcard.addEventListener('click', ()=>{
+          heroFlashcard.classList.toggle('flipped');
+        });
+        // Also allow keyboard interaction
+        heroFlashcard.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter' || e.key === ' '){
+            e.preventDefault();
+            heroFlashcard.classList.toggle('flipped');
+          }
+        });
+        // Make it focusable
+        heroFlashcard.setAttribute('tabindex', '0');
+        heroFlashcard.setAttribute('role', 'button');
+        heroFlashcard.setAttribute('aria-label', 'Flip flashcard to learn more');
+      }
+
       renderDecks();
 
       // Navigation behavior for the 'Decks' nav link:
