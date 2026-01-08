@@ -326,21 +326,87 @@
 
   function importDeckFile(file){
     if(!file) return;
+    
+    // Validate file type
+    if(!file.name.toLowerCase().endsWith('.json')){
+      showSnackbar('Please select a JSON file', null, null, 4000);
+      return;
+    }
+
     const reader = new FileReader();
+    
+    reader.onerror = ()=>{
+      showSnackbar('Error reading file. Please try again.', null, null, 4000);
+    };
+
     reader.onload = ()=>{
       try{
+        if(!reader.result){
+          throw new Error('File appears to be empty');
+        }
+
         const parsed = JSON.parse(reader.result);
-        if(!Array.isArray(parsed)) throw new Error('Invalid format');
-        // assign new ids if missing and merge
+        
+        // Validate structure
+        if(!parsed){
+          throw new Error('File contains invalid data');
+        }
+
+        // Handle both array of decks and single deck object
+        let decksToImport = [];
+        if(Array.isArray(parsed)){
+          decksToImport = parsed;
+        } else if(typeof parsed === 'object' && parsed !== null){
+          // Single deck object - wrap it in an array
+          decksToImport = [parsed];
+        } else {
+          throw new Error('Invalid format: expected an array of decks or a single deck object');
+        }
+
+        // Validate and normalize each deck
+        const normalizedDecks = decksToImport.map((d, idx)=>{
+          if(!d || typeof d !== 'object'){
+            throw new Error(`Invalid deck at position ${idx + 1}`);
+          }
+          
+          return {
+            id: d.id || Date.now() + Math.random() + idx,
+            name: (d.name || 'Imported Deck').trim() || `Imported Deck ${idx + 1}`,
+            description: (d.description || '').trim(),
+            cards: Array.isArray(d.cards) 
+              ? d.cards.map((c, cIdx)=>({
+                  id: c.id || Date.now() + Math.random() + cIdx,
+                  front: (c.front || '').trim() || 'Untitled',
+                  back: (c.back || '').trim() || 'Untitled'
+                }))
+              : []
+          };
+        });
+
+        // Merge with existing decks
         const existing = loadDecks();
-        const merged = existing.concat(parsed.map(d=>({ id: d.id || Date.now()+Math.random(), name: d.name||'Imported', description: d.description||'', cards: Array.isArray(d.cards)?d.cards.map(c=>({ id: c.id||Date.now()+Math.random(), front:c.front||'', back:c.back||'' })) : [] })));
-        saveDecks(merged);
+        const merged = existing.concat(normalizedDecks);
+        
+        // Check localStorage quota
+        try{
+          saveDecks(merged);
+        } catch(e){
+          if(e.name === 'QuotaExceededError'){
+            throw new Error('Not enough storage space. Please free up some space and try again.');
+          }
+          throw e;
+        }
+
         renderDecks();
-        showSnackbar('Imported decks', null, null, 3000);
+        const count = normalizedDecks.length;
+        showSnackbar(`Successfully imported ${count} deck${count !== 1 ? 's' : ''}`, null, null, 4000);
       }catch(err){
-        alert('Failed to import: ' + err.message);
+        console.error('Import error:', err);
+        const errorMsg = err.message || 'Unknown error occurred';
+        showSnackbar(`Import failed: ${errorMsg}`, null, null, 5000);
       }
     };
+    
     reader.readAsText(file);
   }
 
