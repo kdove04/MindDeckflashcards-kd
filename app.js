@@ -570,7 +570,11 @@
 
         renderDecks();
         const count = normalizedDecks.length;
-        showSnackbar(`Successfully imported ${count} deck${count !== 1 ? 's' : ''}`, null, null, 4000);
+        showSnackbar(`Successfully imported ${count} deck${count !== 1 ? 's' : ''}`, 'Undo', ()=>{
+          saveDecks(existing);
+          renderDecks();
+          showSnackbar('Import undone', null, null, 3000);
+        }, 6000);
       }catch(err){
         console.error('Import error:', err);
         const errorMsg = err.message || 'Unknown error occurred';
