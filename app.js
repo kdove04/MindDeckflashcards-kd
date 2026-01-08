@@ -868,8 +868,12 @@
               // Only one deck, start it directly
               const deck = decksWithCards[0];
               showDeckDetail(true, deck.id);
-              // Auto-start study immediately
-              showStudy(true, deck.id);
+              const deckDetail = document.getElementById('deck-detail');
+              if(deckDetail){
+                deckDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+              // Auto-start study after scroll
+              setTimeout(() => showStudy(true, deck.id), 300);
             } else {
               // Multiple decks, let user choose
               openModal({
@@ -887,8 +891,12 @@
                   const selectedDeck = decksWithCards.find(d => d.id === values.selectedDeck);
                   if(selectedDeck){
                     showDeckDetail(true, selectedDeck.id);
-                    // Auto-start study immediately
-                    showStudy(true, selectedDeck.id);
+                    const deckDetail = document.getElementById('deck-detail');
+                    if(deckDetail){
+                      deckDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                    // Auto-start study after scroll
+                    setTimeout(() => showStudy(true, selectedDeck.id), 300);
                   }
                 }
               });
