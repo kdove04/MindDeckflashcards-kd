@@ -26,11 +26,12 @@
         <p>
           <button id="create-deck-btn" class="btn" type="button" data-action="add-deck">Create a deck</button>
         </p>
-        <p style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center">
-          <button id="export-decks" class="btn small" type="button">Export decks</button>
+        <p style="margin-top:.5rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <button id="export-decks" class="btn small" type="button">Export JSON</button>
+          <button id="export-decks-csv" class="btn small ghost" type="button">Export CSV</button>
           <label id="import-label" class="btn small ghost" style="cursor:pointer">
             Import
-            <input id="import-file" type="file" accept="application/json" style="display:none">
+            <input id="import-file" type="file" accept=".json,.csv,application/json,text/csv" style="display:none">
           </label>
         </p>
       </section>

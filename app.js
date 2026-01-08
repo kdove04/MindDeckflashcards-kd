@@ -324,12 +324,154 @@
     download('minddeck-decks.json', JSON.stringify(decks, null, 2));
   }
 
+  function exportDecksCSV(){
+    const decks = loadDecks();
+    if(!decks || decks.length === 0){
+      showSnackbar('No decks to export', null, null, 3000);
+      return;
+    }
+    
+    // CSV format: deck_name,deck_description,front,back
+    let csv = 'deck_name,deck_description,front,back\n';
+    
+    decks.forEach(deck => {
+      const deckName = (deck.name || 'Untitled Deck').replace(/"/g, '""');
+      const deckDesc = (deck.description || '').replace(/"/g, '""');
+      
+      if(deck.cards && deck.cards.length > 0){
+        deck.cards.forEach(card => {
+          const front = (card.front || '').replace(/"/g, '""');
+          const back = (card.back || '').replace(/"/g, '""');
+          csv += `"${deckName}","${deckDesc}","${front}","${back}"\n`;
+        });
+      } else {
+        // Empty deck - still export it
+        csv += `"${deckName}","${deckDesc}","",""\n`;
+      }
+    });
+    
+    download('minddeck-decks.csv', csv);
+  }
+
+  function parseCSV(csvText){
+    if(!csvText || !csvText.trim()){
+      throw new Error('CSV file is empty');
+    }
+
+    // Parse CSV (handling quoted fields with newlines)
+    function parseCSVContent(text){
+      const rows = [];
+      let currentRow = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for(let i = 0; i < text.length; i++){
+        const char = text[i];
+        const nextChar = text[i + 1];
+        
+        if(char === '"'){
+          if(inQuotes && nextChar === '"'){
+            // Escaped quote
+            current += '"';
+            i++; // skip next quote
+          } else {
+            // Toggle quote state
+            inQuotes = !inQuotes;
+          }
+        } else if(char === ',' && !inQuotes){
+          // Field separator
+          currentRow.push(current.trim());
+          current = '';
+        } else if((char === '\n' || (char === '\r' && nextChar === '\n')) && !inQuotes){
+          // Row separator (only if not in quotes)
+          if(char === '\r') i++; // skip \n after \r
+          currentRow.push(current.trim());
+          if(currentRow.some(f => f)){ // Only add non-empty rows
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      // Add last field and row
+      if(current || currentRow.length > 0){
+        currentRow.push(current.trim());
+        if(currentRow.some(f => f)){
+          rows.push(currentRow);
+        }
+      }
+      
+      return rows;
+    }
+
+    const parsedLines = parseCSVContent(csvText);
+    
+    // Detect format by checking first line
+    const firstLine = parsedLines[0];
+    const hasHeader = firstLine[0].toLowerCase() === 'deck_name' || 
+                     firstLine[0].toLowerCase() === 'front' ||
+                     firstLine[0].toLowerCase() === 'question';
+    
+    const startIdx = hasHeader ? 1 : 0;
+    const decksMap = new Map(); // Group by deck name
+    
+    for(let i = startIdx; i < parsedLines.length; i++){
+      const line = parsedLines[i];
+      if(line.length < 2) continue; // Skip incomplete lines
+      
+      let deckName, deckDesc, front, back;
+      
+      if(line.length >= 4){
+        // Format: deck_name,deck_description,front,back
+        [deckName, deckDesc, front, back] = line;
+      } else if(line.length === 2){
+        // Format: front,back (single deck)
+        [front, back] = line;
+        deckName = 'Imported Deck';
+        deckDesc = '';
+      } else {
+        continue; // Skip invalid lines
+      }
+      
+      deckName = (deckName || 'Imported Deck').trim();
+      deckDesc = (deckDesc || '').trim();
+      front = (front || '').trim();
+      back = (back || '').trim();
+      
+      if(!front && !back) continue; // Skip empty cards
+      
+      // Group cards by deck name
+      if(!decksMap.has(deckName)){
+        decksMap.set(deckName, {
+          name: deckName,
+          description: deckDesc,
+          cards: []
+        });
+      }
+      
+      decksMap.get(deckName).cards.push({
+        front: front || 'Untitled',
+        back: back || 'Untitled'
+      });
+    }
+    
+    // Convert map to array
+    return Array.from(decksMap.values());
+  }
+
   function importDeckFile(file){
     if(!file) return;
     
     // Validate file type
-    if(!file.name.toLowerCase().endsWith('.json')){
-      showSnackbar('Please select a JSON file', null, null, 4000);
+    const fileName = file.name.toLowerCase();
+    const isJSON = fileName.endsWith('.json');
+    const isCSV = fileName.endsWith('.csv');
+    
+    if(!isJSON && !isCSV){
+      showSnackbar('Please select a JSON or CSV file', null, null, 4000);
       return;
     }
 
@@ -345,22 +487,33 @@
           throw new Error('File appears to be empty');
         }
 
-        const parsed = JSON.parse(reader.result);
-        
-        // Validate structure
-        if(!parsed){
-          throw new Error('File contains invalid data');
-        }
-
-        // Handle both array of decks and single deck object
         let decksToImport = [];
-        if(Array.isArray(parsed)){
-          decksToImport = parsed;
-        } else if(typeof parsed === 'object' && parsed !== null){
-          // Single deck object - wrap it in an array
-          decksToImport = [parsed];
-        } else {
-          throw new Error('Invalid format: expected an array of decks or a single deck object');
+        
+        if(isJSON){
+          // Parse JSON
+          const parsed = JSON.parse(reader.result);
+          
+          // Validate structure
+          if(!parsed){
+            throw new Error('File contains invalid data');
+          }
+
+          // Handle both array of decks and single deck object
+          if(Array.isArray(parsed)){
+            decksToImport = parsed;
+          } else if(typeof parsed === 'object' && parsed !== null){
+            // Single deck object - wrap it in an array
+            decksToImport = [parsed];
+          } else {
+            throw new Error('Invalid format: expected an array of decks or a single deck object');
+          }
+        } else if(isCSV){
+          // Parse CSV
+          decksToImport = parseCSV(reader.result);
+          
+          if(decksToImport.length === 0){
+            throw new Error('No valid data found in CSV file');
+          }
         }
 
         // Validate and normalize each deck
@@ -511,8 +664,10 @@
 
       // export / import handlers (if present on page)
       const exportBtn = document.getElementById('export-decks');
+      const exportCsvBtn = document.getElementById('export-decks-csv');
       const importInput = document.getElementById('import-file');
       if(exportBtn){ exportBtn.addEventListener('click', ()=> exportDecks()); }
+      if(exportCsvBtn){ exportCsvBtn.addEventListener('click', ()=> exportDecksCSV()); }
       if(importInput){ importInput.addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if(f) importDeckFile(f); importInput.value = ''; }); }
 
       // study controls
