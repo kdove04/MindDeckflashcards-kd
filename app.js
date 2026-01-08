@@ -851,56 +851,8 @@
         
         if(action === 'study'){
           card.addEventListener('click', () => {
-            const decks = loadDecks();
-            if(!decks || decks.length === 0){
-              showSnackbar('Create a deck first to start studying', null, null, 4000);
-              // Optionally open create form
-              setTimeout(() => showForm(true), 500);
-              return;
-            }
-            // Find decks with cards
-            const decksWithCards = decks.filter(d => d.cards && d.cards.length > 0);
-            if(decksWithCards.length === 0){
-              showSnackbar('Add some cards to a deck first', null, null, 4000);
-              return;
-            }
-            if(decksWithCards.length === 1){
-              // Only one deck, start it directly
-              const deck = decksWithCards[0];
-              showDeckDetail(true, deck.id);
-              const deckDetail = document.getElementById('deck-detail');
-              if(deckDetail){
-                deckDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-              }
-              // Auto-start study after scroll
-              setTimeout(() => showStudy(true, deck.id), 300);
-            } else {
-              // Multiple decks, let user choose
-              openModal({
-                title: 'Choose a deck to study',
-                fields: decksWithCards.map((deck, idx) => ({
-                  name: 'selectedDeck',
-                  label: `${deck.name} (${deck.cards.length} cards)`,
-                  type: 'radio',
-                  value: deck.id,
-                  checked: idx === 0
-                })),
-                submitText: 'Start Studying'
-              }).then(values => {
-                if(values && values.selectedDeck){
-                  const selectedDeck = decksWithCards.find(d => d.id === values.selectedDeck);
-                  if(selectedDeck){
-                    showDeckDetail(true, selectedDeck.id);
-                    const deckDetail = document.getElementById('deck-detail');
-                    if(deckDetail){
-                      deckDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                    // Auto-start study after scroll
-                    setTimeout(() => showStudy(true, selectedDeck.id), 300);
-                  }
-                }
-              });
-            }
+            // Navigate to decks page
+            window.location.href = 'decks.html';
           });
         }
         
