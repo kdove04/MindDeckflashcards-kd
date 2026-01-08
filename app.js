@@ -64,11 +64,13 @@
       const label = document.createElement('label');
       label.textContent = f.label || f.name;
       const control = (f.type === 'textarea') ? document.createElement('textarea') : document.createElement('input');
-      control.name = f.name; control.id = 'modal-'+f.name; control.value = f.value || '';
+      control.name = f.name; control.id = 'modal-'+f.name + (f.type === 'radio' ? '-' + f.value : ''); control.value = f.value || '';
       if(f.type && f.type !== 'textarea') control.type = f.type;
+      if(f.type === 'radio' && f.checked) control.checked = true;
       body.appendChild(label);
       body.appendChild(control);
-      inputs[f.name] = control;
+      if(!inputs[f.name]) inputs[f.name] = [];
+      inputs[f.name].push(control);
     });
 
     const submitBtn = document.createElement('button');
@@ -84,7 +86,8 @@
     overlay.setAttribute('aria-hidden','false');
 
     // focus first input
-    const first = Object.values(inputs)[0];
+    const firstKey = Object.keys(inputs)[0];
+    const first = Array.isArray(inputs[firstKey]) ? inputs[firstKey][0] : inputs[firstKey];
     if(first) first.focus();
 
     return new Promise(resolve=>{
@@ -100,7 +103,15 @@
       function onSubmit(e){
         e.preventDefault();
         const result = {};
-        Object.keys(inputs).forEach(k=> result[k] = inputs[k].value);
+        Object.keys(inputs).forEach(k=>{
+          if(Array.isArray(inputs[k])){
+            // radio group
+            const checked = inputs[k].find(r => r.checked);
+            result[k] = checked ? checked.value : null;
+          } else {
+            result[k] = inputs[k].value;
+          }
+        });
         cleanup();
         resolve(result);
       }
@@ -847,24 +858,40 @@
               setTimeout(() => showForm(true), 500);
               return;
             }
-            // Find first deck with cards
-            const deckWithCards = decks.find(d => d.cards && d.cards.length > 0);
-            if(deckWithCards){
-              // Scroll to decks section and open the deck
-              const decksSection = document.getElementById('decks');
-              if(decksSection){
-                decksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                setTimeout(() => {
-                  showDeckDetail(true, deckWithCards.id);
-                  // Auto-start study after a short delay
-                  setTimeout(() => {
-                    const startStudyBtn = document.getElementById('start-study');
-                    if(startStudyBtn) startStudyBtn.click();
-                  }, 300);
-                }, 300);
-              }
-            } else {
+            // Find decks with cards
+            const decksWithCards = decks.filter(d => d.cards && d.cards.length > 0);
+            if(decksWithCards.length === 0){
               showSnackbar('Add some cards to a deck first', null, null, 4000);
+              return;
+            }
+            if(decksWithCards.length === 1){
+              // Only one deck, start it directly
+              const deck = decksWithCards[0];
+              showDeckDetail(true, deck.id);
+              // Auto-start study immediately
+              showStudy(true, deck.id);
+            } else {
+              // Multiple decks, let user choose
+              openModal({
+                title: 'Choose a deck to study',
+                fields: decksWithCards.map((deck, idx) => ({
+                  name: 'selectedDeck',
+                  label: `${deck.name} (${deck.cards.length} cards)`,
+                  type: 'radio',
+                  value: deck.id,
+                  checked: idx === 0
+                })),
+                submitText: 'Start Studying'
+              }).then(values => {
+                if(values && values.selectedDeck){
+                  const selectedDeck = decksWithCards.find(d => d.id === values.selectedDeck);
+                  if(selectedDeck){
+                    showDeckDetail(true, selectedDeck.id);
+                    // Auto-start study immediately
+                    showStudy(true, selectedDeck.id);
+                  }
+                }
+              });
             }
           });
         }
