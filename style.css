@@ -52,6 +52,14 @@ nav a:hover{background:rgba(11,105,255,0.04);color:var(--text)}
 .card p{margin:0 0 .35rem;color:var(--muted);font-size:.95rem}
 .card .card-controls{display:flex;gap:.4rem;align-items:center;justify-content:flex-end}
 
+/* Interactive Quick Start cards */
+.quick-start-card{cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;position:relative}
+.quick-start-card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(255,61,143,0.12);border-color:rgba(255,61,143,0.15)}
+.quick-start-card:active{transform:translateY(-2px)}
+.quick-start-card:focus{outline:3px solid rgba(255,61,143,0.2);outline-offset:2px}
+.quick-start-card::after{content:"";position:absolute;top:.75rem;right:.75rem;width:1.2em;height:1.2em;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23ff2d7a' d='M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z'/></svg>");background-size:contain;background-repeat:no-repeat;opacity:0.6;transition:opacity .2s ease}
+.quick-start-card:hover::after{opacity:1}
+
 .deck-card{padding:.6rem;border-radius:8px;background:linear-gradient(180deg,#fff,#fff);border:1px solid rgba(15,23,42,0.03)}
 .deck-card p{margin:.25rem 0}
 .deck-card .delete{background:transparent;border:1px solid rgba(255,61,143,0.08);color:var(--accent);padding:.25rem .5rem;border-radius:6px}

@@ -543,6 +543,86 @@
       }
 
       document.addEventListener('keydown', handleStudyKey);
+
+      // Quick start card handlers
+      const quickStartCards = document.querySelectorAll('.quick-start-card');
+      quickStartCards.forEach(card => {
+        const action = card.dataset.action;
+        
+        // Make cards keyboard accessible
+        card.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter' || e.key === ' '){
+            e.preventDefault();
+            card.click();
+          }
+        });
+
+        if(action === 'create-deck'){
+          card.addEventListener('click', () => {
+            showForm(true);
+            // Scroll to form if needed
+            const form = document.getElementById('create-deck-form');
+            if(form){
+              setTimeout(() => {
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }, 100);
+            }
+          });
+        }
+        
+        if(action === 'study'){
+          card.addEventListener('click', () => {
+            const decks = loadDecks();
+            if(!decks || decks.length === 0){
+              showSnackbar('Create a deck first to start studying', null, null, 4000);
+              // Optionally open create form
+              setTimeout(() => showForm(true), 500);
+              return;
+            }
+            // Find first deck with cards
+            const deckWithCards = decks.find(d => d.cards && d.cards.length > 0);
+            if(deckWithCards){
+              // Scroll to decks section and open the deck
+              const decksSection = document.getElementById('decks');
+              if(decksSection){
+                decksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                setTimeout(() => {
+                  showDeckDetail(true, deckWithCards.id);
+                  // Auto-start study after a short delay
+                  setTimeout(() => {
+                    const startStudyBtn = document.getElementById('start-study');
+                    if(startStudyBtn) startStudyBtn.click();
+                  }, 300);
+                }, 300);
+              }
+            } else {
+              showSnackbar('Add some cards to a deck first', null, null, 4000);
+            }
+          });
+        }
+        
+        if(action === 'export-import'){
+          card.addEventListener('click', () => {
+            const decks = loadDecks();
+            if(!decks || decks.length === 0){
+              showSnackbar('No decks to export. Create a deck first!', null, null, 4000);
+              return;
+            }
+            // Show a choice: export or import
+            const choice = confirm('Would you like to:\n\nOK = Export your decks\nCancel = Import decks');
+            if(choice){
+              exportDecks();
+              showSnackbar('Decks exported successfully!', null, null, 3000);
+            } else {
+              // Trigger import
+              const importInput = document.getElementById('import-file');
+              if(importInput){
+                importInput.click();
+              }
+            }
+          });
+        }
+      });
     });
   }
 
