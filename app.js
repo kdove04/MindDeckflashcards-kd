@@ -2,13 +2,49 @@
 (function(){
   const STORAGE_KEY = 'wwwf_decks_v1';
 
-  function loadDecks(){
+  async function loadDecks(){
+    try {
+      const response = await fetch('/api/decks');
+      if (response.ok) {
+        const serverDecks = await response.json();
+        // Save to localStorage as cache
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(serverDecks));
+        return serverDecks;
+      }
+    } catch (e) {
+      console.error('Failed to load from server, using localStorage:', e);
+    }
+    // Fallback to localStorage
     try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') }
     catch(e){ console.error('loadDecks parse error', e); return [] }
   }
 
-  function saveDecks(decks){
+  async function saveDecks(decks){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(decks));
+    try {
+      await fetch('/api/decks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(decks)
+      });
+    } catch (e) {
+      console.error('Failed to save to server:', e);
+    }
+  }
+
+  async function updateDeckOnServer(deck) {
+    try {
+      const response = await fetch(`/api/decks/${deck.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(deck)
+      });
+      if (!response.ok) throw new Error('Failed to update deck');
+      return true;
+    } catch (e) {
+      console.error('Error updating deck on server:', e);
+      return false;
+    }
   }
 
   function escapeHtml(s){
@@ -132,9 +168,9 @@
   }
 
 
-  function renderDecks(){
+  async function renderDecks(){
     const list = document.getElementById('decks-list');
-    const decks = loadDecks();
+    const decks = await loadDecks();
     list.innerHTML = '';
     if(!decks.length){
       const p = document.createElement('p');
@@ -193,28 +229,34 @@
               submitText: 'Save'
             });
             if(!res) return;
-            const decksAll = loadDecks();
+            const decksAll = await loadDecks();
             const idx = decksAll.findIndex(dd=>dd.id === d.id);
-            if(idx !== -1){ decksAll[idx].name = (res.name||'').trim() || decksAll[idx].name; decksAll[idx].description = (res.description||'').trim(); saveDecks(decksAll); renderDecks(); }
+            if(idx !== -1){ 
+              decksAll[idx].name = (res.name||'').trim() || decksAll[idx].name; 
+              decksAll[idx].description = (res.description||'').trim(); 
+              await saveDecks(decksAll); 
+              updateDeckOnServer(decksAll[idx]); // save to server
+              await renderDecks(); 
+            }
           });
         }
         if(action === 'delete-deck'){
-          btn.addEventListener('click', (ev)=>{
+          btn.addEventListener('click', async (ev)=>{
             ev.stopPropagation();
             // remove and offer undo
-            const decksAll = loadDecks();
+            const decksAll = await loadDecks();
             const remaining = decksAll.filter(dd=>dd.id !== d.id);
-            saveDecks(remaining);
-            renderDecks();
+            await saveDecks(remaining);
+            await renderDecks();
             // if we were viewing this deck, close detail
             const detailTitle = document.getElementById('deck-detail-title');
             if(detailTitle && detailTitle.textContent === d.name){ showDeckDetail(false); }
             // show undo snackbar
-            showSnackbar(`Deleted "${d.name}"`, 'Undo', ()=>{
-              const current = loadDecks();
+            showSnackbar(`Deleted "${d.name}"`, 'Undo', async ()=>{
+              const current = await loadDecks();
               current.unshift(d);
-              saveDecks(current);
-              renderDecks();
+              await saveDecks(current);
+              await renderDecks();
             });
           });
         }

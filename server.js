@@ -31,6 +31,19 @@ app.post('/api/decks', (req, res)=>{
   res.json({ok:true});
 });
 
+// update a specific deck
+app.put('/api/decks/:id', (req, res)=>{
+  const id = req.params.id;
+  const updatedDeck = req.body;
+  if(!updatedDeck || typeof updatedDeck !== 'object') return res.status(400).json({error:'expected deck object'});
+  const data = readData();
+  const idx = data.findIndex(d => d.id === id);
+  if(idx === -1) return res.status(404).json({error:'deck not found'});
+  data[idx] = { ...data[idx], ...updatedDeck };
+  writeData(data);
+  res.json({ok:true});
+});
+
 // simple health
 app.get('/api/health', (req,res)=> res.json({ok:true}));
 
