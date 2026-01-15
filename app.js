@@ -196,20 +196,20 @@
         </div>
       `;
       // open deck detail when clicked or Enter pressed (but not when clicking controls)
-      el.addEventListener('click', (ev)=>{
+      el.addEventListener('click', async (ev)=>{
         const action = ev.target.closest('[data-action]');
         if(action) return; // controls will handle it
-        showDeckDetail(true, d.id);
+        await showDeckDetail(true, d.id);
       });
-      el.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') showDeckDetail(true, d.id); });
+      el.addEventListener('keydown', async (e)=>{ if(e.key === 'Enter') await showDeckDetail(true, d.id); });
 
       // delegate control clicks
       el.querySelectorAll('[data-action]').forEach(btn=>{
         const action = btn.dataset.action;
         if(action === 'add-card'){
-          btn.addEventListener('click', (ev)=>{
+          btn.addEventListener('click', async (ev)=>{
             ev.stopPropagation();
-            showDeckDetail(true, d.id);
+            await showDeckDetail(true, d.id);
             // focus the front input after a short delay to ensure detail rendered
             setTimeout(()=>{
               const front = document.getElementById('card-front');
@@ -267,21 +267,21 @@
   }
 
   /* --- Deck detail / card management --- */
-  function getDeckById(id){
-    const decks = loadDecks();
+  async function getDeckById(id){
+    const decks = await loadDecks();
     return decks.find(d=>d.id === id);
   }
 
-  function showDeckDetail(show, deckId){
+  async function showDeckDetail(show, deckId){
     const aside = document.getElementById('deck-detail');
     if(!aside) return;
     aside.style.display = show ? 'block' : 'none';
     aside.setAttribute('aria-hidden', show ? 'false' : 'true');
-    if(show){ renderDeckDetails(deckId); }
+    if(show){ await renderDeckDetails(deckId); }
   }
 
-  function renderDeckDetails(deckId){
-    const deck = getDeckById(deckId);
+  async function renderDeckDetails(deckId){
+    const deck = await getDeckById(deckId);
     const title = document.getElementById('deck-detail-title');
     const list = document.getElementById('deck-cards-list');
     const addForm = document.getElementById('add-card-form');
@@ -307,20 +307,20 @@
           </div>
         `;
         // delete handler
-        el.querySelector('.delete').addEventListener('click', (ev)=>{
+        el.querySelector('.delete').addEventListener('click', async (ev)=>{
           ev.stopPropagation();
-          const decks = loadDecks();
+          const decks = await loadDecks();
           const idx = decks.findIndex(dd=>dd.id === deck.id);
           if(idx === -1) return;
           const removed = decks[idx].cards.find(x=>x.id === c.id);
           decks[idx].cards = decks[idx].cards.filter(x=>x.id !== c.id);
           saveDecks(decks);
-          renderDeckDetails(deck.id);
+          await renderDeckDetails(deck.id);
           renderDecks();
-          showSnackbar('Card deleted', 'Undo', ()=>{
-            const cur = loadDecks();
+          showSnackbar('Card deleted', 'Undo', async ()=>{
+            const cur = await loadDecks();
             const findIdx = cur.findIndex(dd=>dd.id === deck.id);
-            if(findIdx !== -1){ cur[findIdx].cards.push(removed); saveDecks(cur); renderDeckDetails(deck.id); renderDecks(); }
+            if(findIdx !== -1){ cur[findIdx].cards.push(removed); saveDecks(cur); await renderDeckDetails(deck.id); renderDecks(); }
           });
         });
         // edit handler
@@ -337,7 +337,7 @@
               submitText: 'Save'
             });
             if(!res) return;
-            const decks = loadDecks();
+            const decks = await loadDecks();
             const di = decks.findIndex(dd=>dd.id === deck.id);
             if(di === -1) return;
             const ci = decks[di].cards.findIndex(x=>x.id === c.id);
@@ -345,7 +345,7 @@
             decks[di].cards[ci].front = (res.front||'').trim();
             decks[di].cards[ci].back = (res.back||'').trim();
             saveDecks(decks);
-            renderDeckDetails(deck.id);
+            await renderDeckDetails(deck.id);
             renderDecks();
           });
         }
@@ -372,13 +372,13 @@
   }
 
   /* Export / Import */
-  function exportDecks(){
-    const decks = loadDecks();
+  async function exportDecks(){
+    const decks = await loadDecks();
     download('minddeck-decks.json', JSON.stringify(decks, null, 2));
   }
 
-  function exportDecksCSV(){
-    const decks = loadDecks();
+  async function exportDecksCSV(){
+    const decks = await loadDecks();
     if(!decks || decks.length === 0){
       showSnackbar('No decks to export', null, null, 3000);
       return;
@@ -525,7 +525,7 @@
       showSnackbar('Error reading file. Please try again.', null, null, 4000);
     };
 
-    reader.onload = ()=>{
+    reader.onload = async ()=>{
       try{
         if(!reader.result){
           throw new Error('File appears to be empty');
@@ -608,7 +608,7 @@
         });
 
         // Merge with existing decks
-        const existing = loadDecks();
+        const existing = await loadDecks();
         const merged = existing.concat(normalizedDecks);
         
         // Check localStorage quota
@@ -717,14 +717,14 @@
       if(addCardCancel){ addCardCancel.addEventListener('click', ()=> { addCardForm.reset(); }); }
 
       if(addCardForm){
-        addCardForm.addEventListener('submit', (ev)=>{
+        addCardForm.addEventListener('submit', async (ev)=>{
           ev.preventDefault();
           const deckId = Number(addCardForm.dataset.deckId);
           const front = addCardForm.elements['front'].value.trim();
           const back = addCardForm.elements['back'].value.trim();
           if(!front || !back){ alert('Please provide both front and back'); return; }
 
-          const decks = loadDecks();
+          const decks = await loadDecks();
           const idx = decks.findIndex(d=>d.id === deckId);
           if(idx === -1){ alert('Deck not found'); return; }
           const card = { id: Date.now(), front, back };
@@ -732,7 +732,7 @@
           decks[idx].cards.push(card);
           saveDecks(decks);
           addCardForm.reset();
-          renderDeckDetails(deckId);
+          await renderDeckDetails(deckId);
           renderDecks();
         });
       }
@@ -741,8 +741,8 @@
       const exportBtn = document.getElementById('export-decks');
       const exportCsvBtn = document.getElementById('export-decks-csv');
       const importInput = document.getElementById('import-file');
-      if(exportBtn){ exportBtn.addEventListener('click', ()=> exportDecks()); }
-      if(exportCsvBtn){ exportCsvBtn.addEventListener('click', ()=> exportDecksCSV()); }
+      if(exportBtn){ exportBtn.addEventListener('click', async ()=> await exportDecks()); }
+      if(exportCsvBtn){ exportCsvBtn.addEventListener('click', async ()=> await exportDecksCSV()); }
       if(importInput){ importInput.addEventListener('change', (e)=>{ const f = e.target.files && e.target.files[0]; if(f) importDeckFile(f); importInput.value = ''; }); }
 
       // study controls
@@ -775,8 +775,8 @@
         studyProgressInner.style.width = pct + '%';
       }
 
-      function renderStudy(){
-        const deck = getDeckById(_study.deckId);
+      async function renderStudy(){
+        const deck = await getDeckById(_study.deckId);
         if(!deck || !deck.cards || !deck.cards.length){
           alert('No cards to study');
           return;
